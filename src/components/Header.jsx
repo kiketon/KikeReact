@@ -9,6 +9,7 @@ export default function Header() {
                 </Link>
                 <nav className="flex gap-4 relative z-10">
                     <Link to="/" className="hover:text-[#00D400] transition-colors">Inicio</Link>
+                    <Link to="/publishers" className="hover:text-[#00D400] transition-colors">Publishers</Link>
                     <Link to="/favorites" className="hover:text-[#00D400] transition-colors flex items-center gap-1">
                         <span className="text-[#00D400]">★</span> Favoritos
                     </Link>

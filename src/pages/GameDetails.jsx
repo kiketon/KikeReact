@@ -80,9 +80,9 @@ export default function GameDetails() {
                             ★ {game.rating}
                         </div>
                         {game.genres?.map(g => (
-                            <span key={g.name} className="bg-[#00D400]/20 backdrop-blur text-[#00D400] border border-[#00D400]/30 px-3 py-1 rounded-full text-sm font-semibold">
+                            <Link to={`/?genres=${g.slug}`} key={g.id} className="bg-[#00D400]/20 backdrop-blur text-[#00D400] border border-[#00D400]/30 px-3 py-1 rounded-full text-sm font-semibold hover:bg-[#00D400]/40 transition-colors">
                                 {g.name}
-                            </span>
+                            </Link>
                         ))}
                     </div>
                 </div>
@@ -103,15 +103,43 @@ export default function GameDetails() {
 
                     {/* Sidebar Info */}
                     <div className="space-y-8">
-                        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg">
-                            <h3 className="text-xl font-bold text-white mb-4">Plataformas</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {game.platforms?.map(({ platform }) => (
-                                    <span key={platform.name} className="bg-gray-900 text-gray-300 px-3 py-1.5 rounded-lg text-sm border border-gray-600">
-                                        {platform.name}
-                                    </span>
-                                ))}
+                        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-lg space-y-6">
+
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-3">Plataformas</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.platforms?.map(({ platform }) => (
+                                        <span key={platform.id} className="bg-gray-900 text-gray-300 px-3 py-1.5 rounded-lg text-sm border border-gray-600">
+                                            {platform.name}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-3">Publishers</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.publishers?.map((pub) => (
+                                        <Link to={`/publisher/${pub.id}`} key={pub.id} className="bg-blue-900/50 text-blue-300 px-3 py-1.5 rounded-lg text-sm border border-blue-600 hover:bg-blue-800/60 transition-colors">
+                                            {pub.name}
+                                        </Link>
+                                    ))}
+                                    {!game.publishers?.length && <span className="text-gray-500">No especificado</span>}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-3">Tags</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.tags?.map((tag) => (
+                                        <Link to={`/?tags=${tag.slug}`} key={tag.id} className="bg-purple-900/50 text-purple-300 px-3 py-1.5 rounded-lg text-sm border border-purple-600 hover:bg-purple-800/60 transition-colors">
+                                            {tag.name}
+                                        </Link>
+                                    ))}
+                                    {!game.tags?.length && <span className="text-gray-500">No hay tags</span>}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

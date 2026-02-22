@@ -1,43 +1,27 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { fetchGames, fetchTrendingGames } from "../services/rawg";
-import GameCard from "../components/GameCard";
-import Carousel from "../components/Carousel";
+import { useSearchParams, Link } from "react-router-dom";
+import { fetchPublishers } from "../services/rawg";
 import SearchBar from "../components/SearchBar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-export default function Home() {
+export default function PublisherList() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [games, setGames] = useState([]);
-    const [trendingGames, setTrendingGames] = useState([]);
+    const [publishers, setPublishers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalPages, setTotalPages] = useState(1);
 
     const currentPage = parseInt(searchParams.get('page')) || 1;
     const currentSearch = searchParams.get('search') || '';
-    const currentTags = searchParams.get('tags') || '';
-    const currentGenres = searchParams.get('genres') || '';
-    const currentPublishers = searchParams.get('publishers') || '';
-
-    useEffect(() => {
-        fetchTrendingGames().then(trending => setTrendingGames(trending));
-    }, []);
 
     useEffect(() => {
         setLoading(true);
-        fetchGames({
-            search: currentSearch,
-            page: currentPage,
-            tags: currentTags,
-            genres: currentGenres,
-            publishers: currentPublishers
-        }).then(data => {
-            setGames(data.results || []);
+        fetchPublishers({ search: currentSearch, page: currentPage }).then(data => {
+            setPublishers(data.results || []);
             setTotalPages(Math.ceil((data.count || 0) / 20)); // RAWG returns 20 per page
             setLoading(false);
         });
-    }, [currentSearch, currentPage, currentTags, currentGenres, currentPublishers]);
+    }, [currentSearch, currentPage]);
 
     const handleSearch = (query) => {
         const newParams = new URLSearchParams(searchParams);
@@ -64,20 +48,15 @@ export default function Home() {
             <Header />
 
             <main className="flex-grow container mx-auto px-4 py-8">
-                {/* Carousel Section */}
-                {trendingGames.length > 0 && <Carousel games={trendingGames} />}
-
-                {/* Search Section */}
                 <div className="mb-10 text-center">
-                    <h2 className="text-3xl font-bold mb-6 text-white">Encuentra tu próxima aventura</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-white">Encuentra a tu Publisher favorito</h2>
                     <SearchBar onSearch={handleSearch} />
                 </div>
 
-                {/* Results Section */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold text-white border-l-4 border-[#00D400] pl-3">
-                            {loading ? "Buscando..." : "Juegos"}
+                            {loading ? "Buscando..." : "Publishers"}
                         </h2>
                     </div>
 
@@ -87,15 +66,24 @@ export default function Home() {
                                 <div key={i} className="h-64 bg-gray-800 rounded-xl"></div>
                             ))}
                         </div>
-                    ) : games.length > 0 ? (
+                    ) : publishers.length > 0 ? (
                         <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                {games.map((game) => (
-                                    <GameCard key={game.id} game={game} />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {publishers.map((publisher) => (
+                                    <Link key={publisher.id} to={`/publisher/${publisher.id}`} className="block relative h-64 rounded-xl overflow-hidden group shadow-lg transition-transform hover:-translate-y-2 border border-gray-800 hover:border-[#00D400]">
+                                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${publisher.image_background})` }}>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent group-hover:from-gray-900 group-hover:via-[#00D400]/20 transition-all"></div>
+                                        </div>
+                                        <div className="absolute inset-0 flex flex-col justify-end p-4 z-10">
+                                            <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md">{publisher.name}</h3>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-semibold text-gray-300">Juegos: {publisher.games_count}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
                                 ))}
                             </div>
 
-                            {/* Pagination Controls */}
                             {totalPages > 1 && (
                                 <div className="flex justify-center items-center mt-10 gap-4">
                                     <button
@@ -120,8 +108,7 @@ export default function Home() {
                         </>
                     ) : (
                         <div className="text-center py-20 bg-gray-900 rounded-xl border border-gray-800">
-                            <p className="text-2xl text-gray-400">No se encontraron juegos.</p>
-                            <p className="text-gray-500 mt-2">¡Intenta buscar otra cosa!</p>
+                            <p className="text-2xl text-gray-400">No se encontraron publishers.</p>
                         </div>
                     )}
                 </section>
