@@ -1,19 +1,21 @@
 import { Link } from "react-router-dom";
-import { useFavorites } from "../context/FavoritesContext";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleFavorite } from "../redux/slices/gamesSlice";
 
 export default function GameCard({ game }) {
-    const { isFavorite, toggleFavorite } = useFavorites();
-    const favorite = isFavorite(game.id);
+    const dispatch = useDispatch();
+    const favorites = useSelector(state => state.games.favorites);
+    const isFavorite = favorites.some(f => f.id === game.id);
 
     const handleFavoriteClick = (e) => {
-        e.preventDefault(); // Prevent navigating to game details
-        toggleFavorite(game);
+        e.preventDefault();
+        dispatch(toggleFavorite(game));
     };
 
     return (
         <div className="block group h-full relative">
             <Link to={`/game/${game.id}`} className="block h-full">
-                <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-green-500/20 hover:border-[#00D400] h-full flex flex-col">
+                <div className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg border border-gray-700 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-[#00D400]/20 hover:border-[#00D400] h-full flex flex-col">
                     <div className="relative aspect-video overflow-hidden">
                         {game.background_image ? (
                             <img
@@ -27,13 +29,13 @@ export default function GameCard({ game }) {
                                 Sin Imagen
                             </div>
                         )}
-                        <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded-md text-[#00D400] font-bold text-sm border border-white/10">
+                        <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded-md text-[#00D400] font-bold text-sm border border-white/10 uppercase tracking-tighter">
                             ★ {game.rating}
                         </div>
                     </div>
 
-                    <div className="p-4 flex-grow flex flex-col justify-between">
-                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#00D400] transition-colors">{game.name}</h3>
+                    <div className="p-4 grow flex flex-col justify-between">
+                        <h3 className="text-lg font-bold text-white mb-0 group-hover:text-[#00D400] transition-colors line-clamp-2">{game.name}</h3>
                     </div>
                 </div>
             </Link>
@@ -41,10 +43,10 @@ export default function GameCard({ game }) {
             {/* Floating Favorite Button */}
             <button
                 onClick={handleFavoriteClick}
-                className={`absolute top-2 left-2 z-10 p-2 rounded-full shadow-lg transition-all duration-300 ${favorite ? 'bg-yellow-400 text-black' : 'bg-black/50 text-white hover:bg-black/70'}`}
-                title={favorite ? "Eliminar de favoritos" : "Añadir a favoritos"}
+                className={`absolute top-2 left-2 z-10 p-2 rounded-full shadow-lg transition-all duration-300 border border-white/10 ${isFavorite ? 'bg-yellow-400 text-black border-yellow-500 shadow-yellow-500/30 scale-110' : 'bg-black/50 text-white hover:bg-black/70 hover:scale-110'}`}
+                title={isFavorite ? "Eliminar de favoritos" : "Añadir a favoritos"}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={favorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
             </button>

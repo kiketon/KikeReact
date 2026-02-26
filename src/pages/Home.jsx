@@ -1,18 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { fetchGames, fetchTrendingGames } from "../services/rawg";
+import { useDispatch, useSelector } from "react-redux";
+import { getGames, getTrendingGames } from "../redux/slices/gamesSlice";
 import GameCard from "../components/GameCard";
 import Carousel from "../components/Carousel";
 import SearchBar from "../components/SearchBar";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 
 export default function Home() {
+    const dispatch = useDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [games, setGames] = useState([]);
-    const [trendingGames, setTrendingGames] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [totalPages, setTotalPages] = useState(1);
+
+    const { items: games, trending: trendingGames, loading, totalCount } = useSelector(state => state.games);
 
     const currentPage = parseInt(searchParams.get('page')) || 1;
     const currentSearch = searchParams.get('search') || '';
@@ -20,24 +18,21 @@ export default function Home() {
     const currentGenres = searchParams.get('genres') || '';
     const currentPublishers = searchParams.get('publishers') || '';
 
-    useEffect(() => {
-        fetchTrendingGames().then(trending => setTrendingGames(trending));
-    }, []);
+    const totalPages = Math.ceil((totalCount || 0) / 20);
 
     useEffect(() => {
-        setLoading(true);
-        fetchGames({
+        dispatch(getTrendingGames());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getGames({
             search: currentSearch,
             page: currentPage,
             tags: currentTags,
             genres: currentGenres,
             publishers: currentPublishers
-        }).then(data => {
-            setGames(data.results || []);
-            setTotalPages(Math.ceil((data.count || 0) / 20)); // RAWG returns 20 per page
-            setLoading(false);
-        });
-    }, [currentSearch, currentPage, currentTags, currentGenres, currentPublishers]);
+        }));
+    }, [dispatch, currentSearch, currentPage, currentTags, currentGenres, currentPublishers]);
 
     const handleSearch = (query) => {
         const newParams = new URLSearchParams(searchParams);
@@ -60,16 +55,16 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-transparent font-sans text-white">
-            <Header />
-
-            <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="flex flex-col bg-transparent font-sans text-white">
+            <main className="grow container mx-auto px-4 py-8 pt-0">
                 {/* Carousel Section */}
                 {trendingGames.length > 0 && <Carousel games={trendingGames} />}
 
                 {/* Search Section */}
-                <div className="mb-10 text-center">
-                    <h2 className="text-3xl font-bold mb-6 text-white">Encuentra tu próxima aventura</h2>
+                <div className="mb-10 text-center mt-10">
+                    <h2 className="text-3xl font-bold mb-6 bg-linear-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                        Encuentra tu próxima aventura
+                    </h2>
                     <SearchBar onSearch={handleSearch} />
                 </div>
 
@@ -82,9 +77,9 @@ export default function Home() {
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[...Array(8)].map((_, i) => (
-                                <div key={i} className="h-64 bg-gray-800 rounded-xl"></div>
+                                <div key={i} className="h-64 bg-gray-900/50 rounded-2xl border border-gray-800 animate-pulse"></div>
                             ))}
                         </div>
                     ) : games.length > 0 ? (
@@ -97,21 +92,21 @@ export default function Home() {
 
                             {/* Pagination Controls */}
                             {totalPages > 1 && (
-                                <div className="flex justify-center items-center mt-10 gap-4">
+                                <div className="flex justify-center items-center mt-12 mb-12 gap-4">
                                     <button
                                         onClick={() => handlePageChange(currentPage - 1)}
                                         disabled={currentPage === 1}
-                                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors border border-gray-700"
+                                        className="px-6 py-2.5 bg-gray-900 hover:bg-[#00D400] hover:text-black disabled:opacity-30 disabled:hover:bg-gray-900 disabled:hover:text-white text-white rounded-xl font-bold transition-all border border-gray-800"
                                     >
                                         Anterior
                                     </button>
-                                    <span className="text-white font-bold bg-gray-900 px-4 py-2 rounded-lg border border-gray-800">
-                                        Página {currentPage} de {totalPages}
+                                    <span className="text-white font-mono bg-gray-900 px-6 py-2.5 rounded-xl border border-gray-800 shadow-xl">
+                                        Pág. <span className="text-[#00D400]">{currentPage}</span> / {totalPages}
                                     </span>
                                     <button
                                         onClick={() => handlePageChange(currentPage + 1)}
                                         disabled={currentPage === totalPages}
-                                        className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors border border-gray-700"
+                                        className="px-6 py-2.5 bg-gray-900 hover:bg-[#00D400] hover:text-black disabled:opacity-30 disabled:hover:bg-gray-900 disabled:hover:text-white text-white rounded-xl font-bold transition-all border border-gray-800"
                                     >
                                         Siguiente
                                     </button>
@@ -119,15 +114,14 @@ export default function Home() {
                             )}
                         </>
                     ) : (
-                        <div className="text-center py-20 bg-gray-900 rounded-xl border border-gray-800">
-                            <p className="text-2xl text-gray-400">No se encontraron juegos.</p>
-                            <p className="text-gray-500 mt-2">¡Intenta buscar otra cosa!</p>
+                        <div className="text-center py-24 bg-gray-900/30 rounded-3xl border border-dashed border-gray-800">
+                            <p className="text-3xl mb-2 text-gray-500">🔍</p>
+                            <p className="text-xl text-gray-400">No se encontraron juegos.</p>
+                            <p className="text-gray-500 mt-2">¡Intenta buscar otra cosa o ajusta tus filtros!</p>
                         </div>
                     )}
                 </section>
             </main>
-
-            <Footer />
         </div>
     );
 }

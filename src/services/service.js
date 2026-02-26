@@ -46,15 +46,37 @@ export const gameService = {
 };
 
 export const eventService = {
-    fetchEvents: async () => {
-        // Mock data for events since no API is specified
+    events: [
+        {
+            id: 1,
+            title: "Gaming Expo 2025",
+            location: "New York",
+            image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=800",
+        },
+        {
+            id: 2,
+            title: "Indie Game Developers Meetup",
+            location: "San Francisco",
+            image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800",
+        },
+        {
+            id: 3,
+            title: "Esports Championship",
+            location: "Los Angeles",
+            image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800",
+        },
+        {
+            id: 4,
+            title: "Retro Gaming Night",
+            location: "Austin",
+            image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800",
+        }
+    ],
+
+    fetchEvents: function () {
         return new Promise((resolve) => {
             setTimeout(() => {
-                resolve([
-                    { id: 1, name: "E3 2026", date: "2026-06-12", location: "Los Angeles, CA", description: "The biggest gaming expo." },
-                    { id: 2, name: "Gamescom 2026", date: "2026-08-20", location: "Cologne, Germany", description: "Global gaming celebration." },
-                    { id: 3, name: "The Game Awards 2026", date: "2026-12-10", location: "Los Angeles, CA", description: "Celebrating the best in games." },
-                ]);
+                resolve(this.events);
             }, 500);
         });
     }

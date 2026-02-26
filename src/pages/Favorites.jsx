@@ -1,38 +1,32 @@
-import { useFavorites } from "../context/FavoritesContext";
+import { useSelector } from "react-redux";
 import GameCard from "../components/GameCard";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 
 export default function Favorites() {
-    const { favorites } = useFavorites();
+    const favorites = useSelector(state => state.games.favorites);
 
     return (
-        <div className="min-h-screen flex flex-col bg-transparent font-sans text-white">
-            <Header />
-
-            <main className="flex-grow container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-6 text-white border-l-4 border-[#00D400] pl-3">Mis Favoritos</h1>
+        <div className="flex flex-col font-sans text-white">
+            <main className="grow container mx-auto px-4 py-12">
+                <h1 className="text-4xl font-black mb-10 text-white border-l-4 border-[#00D400] pl-4 uppercase tracking-tighter">Mis Favoritos</h1>
 
                 {favorites.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {favorites.map((game) => (
                             <GameCard key={game.id} game={game} />
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-gray-900 rounded-xl border border-gray-800 shadow-lg">
-                        <div className="text-6xl mb-4">⭐</div>
-                        <p className="text-2xl text-gray-400 font-bold">Aún no tienes favoritos</p>
-                        <p className="text-gray-500 mt-2 mb-6">¡Explora juegos y guárdalos aquí!</p>
-                        <Link to="/" className="bg-[#00D400] hover:bg-[#00FF00] text-black px-6 py-3 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(0,212,0,0.5)] transform hover:scale-105">
+                    <div className="text-center py-24 bg-gray-900/30 rounded-3xl border border-dashed border-gray-800 shadow-2xl max-w-2xl mx-auto">
+                        <div className="text-7xl mb-6">⭐</div>
+                        <p className="text-2xl text-white font-black mb-2 uppercase tracking-tighter">Aún no tienes favoritos</p>
+                        <p className="text-gray-500 mb-8 max-w-sm mx-auto">¡Explora el catálogo de juegos y guarda tus aventuras favoritas aquí para tenerlas siempre a mano!</p>
+                        <Link to="/" className="inline-block bg-[#00D400] hover:bg-white text-black px-10 py-4 rounded-2xl font-black transition-all shadow-[0_0_30px_rgba(0,212,0,0.3)] transform hover:scale-105 uppercase tracking-widest text-sm">
                             Explorar Juegos
                         </Link>
                     </div>
                 )}
             </main>
-
-            <Footer />
         </div>
     );
 }

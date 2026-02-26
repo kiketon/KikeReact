@@ -35,6 +35,28 @@ export const getGameDetails = createAsyncThunk(
     }
 );
 
+export const getPublishers = createAsyncThunk(
+    'games/getPublishers',
+    async (params, { rejectWithValue }) => {
+        try {
+            return await gameService.fetchPublishers(params);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const getPublisherDetails = createAsyncThunk(
+    'games/getPublisherDetails',
+    async (id, { rejectWithValue }) => {
+        try {
+            return await gameService.fetchPublisherDetails(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const loadFavorites = () => {
     try {
         const saved = localStorage.getItem('favorites');
@@ -52,9 +74,12 @@ const gamesSlice = createSlice({
         trending: [],
         details: null,
         favorites: loadFavorites(),
+        publishers: [],
+        publisherDetails: null,
         loading: false,
         error: null,
         totalCount: 0,
+        publishersCount: 0,
     },
     reducers: {
         toggleFavorite: (state, action) => {
@@ -88,6 +113,17 @@ const gamesSlice = createSlice({
             })
             .addCase(getGameDetails.fulfilled, (state, action) => {
                 state.details = action.payload;
+            })
+            .addCase(getPublishers.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getPublishers.fulfilled, (state, action) => {
+                state.loading = false;
+                state.publishers = action.payload.results;
+                state.publishersCount = action.payload.count;
+            })
+            .addCase(getPublisherDetails.fulfilled, (state, action) => {
+                state.publisherDetails = action.payload;
             });
     },
 });
